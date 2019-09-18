@@ -1,0 +1,43 @@
+{
+    "name": "kuriousagency/commerce-gwp",
+    "description": "Commerce Gift with Purchase plugin for Craft CMS",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "gwp"
+    ],
+    "support": {
+        "docs": "https://github.com/KuriousAgency/commerce-gwp/blob/master/README.md",
+        "issues": "https://github.com/KuriousAgency/commerce-gwp/issues"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kurious Agency",
+            "homepage": "https://kurious.agency"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0-RC1"
+    },
+    "autoload": {
+        "psr-4": {
+			"kuriousagency\\commerce\\gwp\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "GWP",
+        "handle": "commerce-gwp",
+        "hasCpSettings": false,
+        "hasCpSection": true,
+        "changelogUrl": "https://raw.githubusercontent.com/KuriousAgency/commerce-gwp/master/CHANGELOG.md",
+        "components": {
+            "service": "kuriousagency\\gwp\\services\\GwpService"
+        },
+        "class": "kuriousagency\\commerce\\gwp\\gwp"
+    }
+}

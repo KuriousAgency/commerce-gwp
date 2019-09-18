@@ -1,0 +1,74 @@
+{% extends "commerce-gwp/_layout" %}
+{% set selectedSidebarNavItem = 'gifts' %}
+
+{% block actionButton %}
+    <div class="buttons">
+        <a href="{{ url('commerce-gwp/new') }}"
+           class="btn submit add icon">{{ 'New Gift'|t('commerce-gwp') }}</a>
+    </div>
+{% endblock %}
+
+
+{% block content %}
+    {# <h2>{{ "Discounts"|t('commerce-gwp') }}</h2> #}
+
+    <div id="no-gifts"{% if gifts|length %} class="hidden"{% endif %}>
+        <p>{{ "No gifts exist yet."|t('commerce-gwp') }}</p>
+    </div>
+
+    {% if gifts|length %}
+        <table id="gifts" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ "Name"|t('commerce-gwp') }}</th>
+                <th scope="col">{{ "Duration"|t('commerce-gwp') }}</th>
+                <th scope="col">{{ "Times Used"|t('commerce-gwp') }}</th>
+                <td class="thin"></td>
+                <td class="thin"></td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for gift in gifts %}
+                <tr data-id="{{ gift.id }}" data-name="{{ gift.name }}">
+                    <th scope="row" data-title="{{ 'Name'|t('commerce-gwp') }}">
+                        {% if gift.enabled %}
+                            <div class="status enabled"></div>
+                        {% else %}
+                            <div class="status"></div>
+                        {% endif %}
+                        <a href="{{ url('commerce-gwp/'~gift.id) }}">{{ gift.name }}</a>
+                    </th>
+                    <td data-title="{{ 'Duration'|t('commerce-gwp') }}">
+                        {{ (gift.dateFrom ? gift.dateFrom|datetime('short'): '∞') }}
+                        -
+                        {{ (gift.dateTo ? gift.dateTo|datetime('short') : '∞') }}
+                    </td>
+                    <td data-title="{{ 'Times Coupon Used'|t('commerce-gwp') }}">{{ gift.totalUses }}</td>
+                    <td class="thin">
+                        <a class="move icon disabled"
+                           title="{{ 'Delete'|t('commerce-gwp') }}"
+                           role="button"></a>
+                    </td>
+                    <td class="thin"><a class="delete icon"
+                                        title="{{ 'Delete'|t('commerce-gwp') }}"
+                                        role="button"></a></td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}
+
+
+{% js %}
+    var adminTable = new Craft.AdminTable({
+      tableSelector: '#gifts',
+      noObjectsSelector: '#no-gifts',
+      deleteAction: 'commerce-gwp/default/delete',
+      sortable: true,
+      reorderAction: 'commerce-gwp/default/reorder',
+      reorderSuccessMessage: Craft.t('commerce-gwp', 'Gifts reordered.') ,
+      reorderFailMessage:    Craft.t('commerce-gwp', 'Couldn’t reorder gifts.')
+    });
+{% endjs %}

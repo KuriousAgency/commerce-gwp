@@ -1,0 +1,320 @@
+{% extends "commerce-gwp/_layout" %}
+
+{# {% set selectedSubnavItem = "promotions" %} #}
+
+{% set crumbs = [
+    { label: "GWP"|t('commerce-gwp'), url: url('commerce-gwp') },
+] %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+{% import "commerce/_includes/forms/commerceForms" as commerceForms %}
+
+
+{% set gwpClasses = "" %}
+{% if (gift.getErrors('name')) %}
+    {% set gwpClasses = "error" %}
+{% endif %}
+
+{% set conditionsClasses = "" %}
+{% if(gift.getErrors('startDate') or gift.getErrors('endDate') or gift.getErrors('productTypes')) %}
+    {% set conditionsClasses = "error" %}
+{% endif %}
+{% if ( gift.getErrors('purchasableIds') or gift.getErrors('categoryIds') ) %}
+    {% set conditionsClasses = "error" %}
+{% endif %}
+
+{% set productClasses = "" %}
+{% if ( gift.getErrors('productPurchasableIds') or gift.getErrors('productCategoryIds') ) %}
+    {% set productClasses = "error" %}
+{% endif %}
+
+{% set tabs = {
+    0: {'label':'GWP'|t('commerce-gwp'),'url':'#gwp','class':gwpClasses},
+    1: {'label':'Conditions'|t('commerce-gwp'),'url':'#conditions','class':conditionsClasses},
+    2: {'label':'Products'|t('commerce-gwp'),'url':'#products','class':productClasses},
+} %}
+
+
+{% block content %}
+
+    <input type="hidden" name="action" value="commerce-gwp/default/save">
+    {{ redirectInput('commerce-gwp') }}
+    {% if gift.id %}
+        <input type="hidden" name="sortOrder" value="{{ gift.sortOrder }}">
+        <input type="hidden" name="id" value="{{ gift.id }}">
+    {% endif %}
+
+    <div id="gwp">
+        {{ forms.textField({
+            first: true,
+            label: "Name"|t('commerce-gwp'),
+            instructions: "What this GWP will be called in the CP."|t('commerce-gwp'),
+            id: 'name',
+            name: 'name',
+            value: gift.name,
+            errors: gift.getErrors('name'),
+            autofocus: true,
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Description"|t('commerce-gwp'),
+            instructions: "GWP description."|t('commerce-gwp'),
+            id: 'description',
+            name: 'description',
+            value: gift.description,
+            errors: gift.getErrors('description'),
+        }) }}
+
+        {{ forms.lightswitchField({
+            label: "Enable this GWP"|t('commerce-gwp'),
+            id: 'enabled',
+            name: 'enabled',
+            on: gift.enabled,
+            errors: gift.getErrors('enabled')
+        }) }}
+		
+		{{ commerceForms.numberField({
+			label: "Per User GWP Limit"|t('commerce'),
+			instructions: "How many times one user is allowed to receive this GWP. Setting this requires a user to be logged in to use the discount. Setting this will not allow guests to use the discount. Set to zero for unlimited use by guests or users."|t('commerce'),
+			id: 'perUserLimit',
+			name: 'perUserLimit',
+			value: gift.perUserLimit,
+			min: '0',
+			errors: gift.getErrors('perUserLimit'),
+		}) }}
+
+		{{ commerceForms.numberField({
+			label: "Per Email Address GWP Limit"|t('commerce'),
+			instructions: "How many times one email address is allowed to receive this GWP. This applies to all previous orders, whether guest or user. Set to zero for unlimited use by guests or users."|t('commerce'),
+			id: 'perEmailLimit',
+			name: 'perEmailLimit',
+			value: gift.perEmailLimit,
+			min: '0',
+			errors: gift.getErrors('perEmailLimit'),
+		}) }}
+
+		{{ commerceForms.numberField({
+			label: "Total GWP Use Limit"|t('commerce'),
+			instructions: "How many times this GWP can be used in total by guests or logged in users. Set zero for unlimited use."|t('commerce'),
+			id: 'totalUseLimit',
+			name: 'totalUseLimit',
+			value: gift.totalUseLimit,
+			min: '0',
+			errors: gift.getErrors('totalUseLimit'),
+		}) }}
+
+		{{ forms.field({
+			'label': 'Times GWP Used'|t('commerce'),
+			'id': 'total-gwp-use-counter',
+			'instructions': "How many times this GWP has been used, if a total GWP usage limit has been set."|t('commerce'),
+		}, '<input disabled class="text disabled fullwidth" value="' ~ gift.totalUses ~ ' times">') }}
+
+		{% if gift.id %}
+			<div id="clear-gwp-history">
+				{{ forms.field({
+					'label': 'Clear all GWP usage history for this discount'|t('commerce'),
+					'id': 'clear-gwp',
+					'instructions': "This will clear all “Per User GWP Limit” and “Total Use Limit” counters. It will not clear any “Per Email Address GWP Limit” counters."|t('commerce'),
+				}, '<div id="clear-gwp-btn" class="btn">' ~ "Clear counters"|t('commerce') ~'</div><div id="clear-gwp-history-spinner" class="spinner hidden"></div>') }}
+			</div>
+		{% endif %}
+    </div>
+
+    <div id="conditions" class="hidden">
+
+        {{ forms.dateTimeField({
+            label: "Start Date"|t('commerce-gwp'),
+            instructions: "Date from which the GWP will be active. Leave blank for unlimited start date"|t('commerce-gwp'),
+            id: 'dateFrom',
+            name: 'dateFrom',
+            value: gift.dateFrom,
+            errors: gift.getErrors('dateFrom'),
+        }) }}
+
+        {{ forms.dateTimeField({
+            label: "End Date"|t('commerce-gwp'),
+            instructions: "Date when the GWP will be finished. Leave blank for unlimited end date"|t('commerce-gwp'),
+            id: 'dateTo',
+            name: 'dateTo',
+            value: gift.dateTo,
+            errors: gift.getErrors('dateTo'),
+        }) }}
+
+        {% if groups|length %}
+            {{ forms.multiselectField({
+                label: 'User Groups'|t('commerce-gwp'),
+                instructions: "Groups for which this GWP will be applicable to. Leave blank for all groups"|t('commerce-gwp'),
+                id: 'groups',
+                name: 'groups',
+                options: groups,
+                values: gift.getUserGroupIds(),
+                errors: gift.getErrors('groups'),
+                class: 'selectize fullwidth',
+            }) }}
+        {% endif %}
+
+        {% for purchasableType in purchasableTypes %}
+            {% set instruction = "that has to be purchased for this GWP to applicable."|t('commerce-gwp') %}
+            {{ forms.elementSelectField({
+                id: 'purchasables-'~purchasableType.elementType|id,
+                label: purchasableType.name,
+                name: 'purchasables['~purchasableType.elementType~']',
+                elements: purchasables[purchasableType.elementType] ?? null,
+                elementType: purchasableType.elementType,
+                limit: null,
+                instructions: purchasableType.name~" "~instruction,
+                errors: gift.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
+            }) }}
+        {% endfor %}
+		
+        {{ forms.elementSelectField({
+            id: 'categories',
+            label: 'Categories'|t('commerce-gwp'),
+            name: 'categories',
+            elements: categories ? categories : null,
+            elementType: categoryElementType,
+            limit: null,
+            instructions: "Categories that the purchasables must be related to for this GWP to applicable."|t('commerce-gwp'),
+            errors: gift.getErrors('categories'),
+        }) }}
+
+		{% if ( gift.getErrors('purchasableIds') or gift.getErrors('categoryIds') ) %}
+			<ul class="errors">
+        		<li>Please select at least one product or a category</li>
+            </ul>
+		{% endif %}
+
+		 {{ forms.lightswitchField({
+            label: "Customers must select all matching items for the GWP to apply"|t('commerce-gwp'),
+            id: 'purchaseAll',
+            name: 'purchaseAll',
+            on: gift.purchaseAll,
+            errors: gift.getErrors('purchaseAll')
+        }) }}
+
+        {{ forms.textField({
+            label: "Purchase Total"|t('commerce-gwp'),
+            instructions: "Restrict the gwp to only those orders where the customer has purchased a minimum total value of matching items."|t('commerce-gwp'),
+            id: 'purchaseTotal',
+            name: 'purchaseTotal',
+            value: gift.purchaseTotal,
+            type: 'number',
+            errors: gift.getErrors('purchaseTotal'),
+        }) }}
+
+        {{ forms.textField({
+            label: "Minimum Purchase Quantity"|t('commerce-gwp'),
+            instructions: "Minimum number of matching items that need to be ordered for this GWP to apply."|t('commerce-gwp'),
+            id: 'purchaseQty',
+            name: 'purchaseQty',
+            value: gift.purchaseQty,
+            type: 'number',
+            errors: gift.getErrors('purchaseQty'),
+        }) }}
+
+        {{ forms.textField({
+            label: "Maximum Purchase Quantity"|t('commerce-gwp'),
+            instructions: "Maximum number of matching items that can be ordered for this GWP to apply. A zero value here will skip this condition."|t('commerce-gwp'),
+            id: 'maxPurchaseQty',
+            name: 'maxPurchaseQty',
+            value: gift.maxPurchaseQty,
+            type: 'number',
+            errors: gift.getErrors('maxPurchaseQty'),
+        }) }}
+
+    </div>
+	
+	<div id="products" class="hidden">
+
+		 {% for purchasableType in purchasableTypes %}
+            {% set instruction = " that this gwp will apply to."|t('commerce-gwp') %}
+            {{ forms.elementSelectField({
+                id: 'productPurchasables-'~purchasableType.elementType|id,
+                label: purchasableType.name,
+                name: 'productPurchasables['~purchasableType.elementType~']',
+                elements: productPurchasables[purchasableType.elementType] ?? null,
+                elementType: purchasableType.elementType,
+                limit: null,
+                instructions: purchasableType.name~" "~instruction,
+                errors: gift.getErrors('productPurchasables-'~purchasableType.elementType|replace('\\','-')),
+            }) }}
+        {% endfor %}
+
+		{% if ( gift.getErrors('productPurchasableIds')) %}
+			<ul class="errors">
+        		<li>Please select at least one product</li>
+            </ul>
+		{% endif %}
+
+		{{ forms.lightswitchField({
+            label: "Allow customer choice"|t('commerce-gwp'),
+            id: 'customerChoice',
+            name: 'customerChoice',
+            on: gift.customerChoice,
+            errors: gift.getErrors('customerChoice')
+        }) }}
+
+		<input type="hidden" name="maxCustomerChoice" value="0">
+
+		{{ forms.textField({
+			label: "Maximum Customer Choice Quantity"|t('commerce-gwp'),
+			instructions: "Maximum number of of gifts a customer can choose ."|t('commerce-gwp'),
+			id: 'maxCustomerChoice',
+			name: 'maxCustomerChoice',
+			value: gift.maxCustomerChoice,
+			type: 'number',
+			errors: gift.getErrors('maxCustomerChoice'),
+			disabled: gift.customerChoice ? false :true,
+		}) }}
+
+	</div>
+
+{% endblock %}
+
+
+{% js %}
+        $(function() {
+            $('#groups').selectize({
+                plugins: ['remove_button'],
+                dropdownParent: 'body'
+            });
+
+			$('#customerChoice').on('change', function(event) {
+                if ($('input[name="customerChoice"]').val() == 1) {
+					$('#maxCustomerChoice').prop('disabled',false).removeClass('disabled');
+                } else {
+					$('#maxCustomerChoice').prop('disabled',true).addClass('disabled');
+                }
+
+            });
+
+           $('#clear-gwp-btn').click(function(event) {
+                var r = confirm("Are you sure you want to clear all usage history for this gwp?");
+
+                if (r == true) {
+                    $('#clear-gwp-history-spinner').toggleClass('hidden');
+                    $.ajax({
+                        type: "POST",
+                        dataType: 'json',
+                        headers: {
+                            "X-CSRF-Token" : '{{ craft.app.request.csrfToken }}',
+                        },
+                        url: '',
+                        data: {
+                            'action' : 'commerce-gwp/default/clear-gwp-usage-history',
+                            'id': '{{ gift.id ?? '' }}'
+                        },
+                        success: function(data){
+                            $('#clear-gwp-history-spinner').toggleClass('hidden');
+                            $('#total-gwp-use-counter').val(0);
+                            alert(Craft.t('commerce-gwp', 'All GWP usage counters have been cleared'));
+                            $('#clear-gwp-history').hide();
+                        }
+                    });
+                }
+            });
+        });
+{% endjs %}
