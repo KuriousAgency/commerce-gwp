@@ -41,8 +41,8 @@ use yii\db\ActiveQueryInterface;
  * @property int $sortOrder
  * @property int $totalUseLimit
  * @property int $totalUses
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @author Kurious Agency
+ * @since 1.0.0
  */
 class Gift extends ActiveRecord
 {

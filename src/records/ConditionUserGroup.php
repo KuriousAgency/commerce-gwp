@@ -22,8 +22,8 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property ActiveQueryInterface $productType
  * @property int $userGroupId
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @author Kurious Agency
+ * @since 1.0.0
  */
 class ConditionUserGroup extends ActiveRecord
 {

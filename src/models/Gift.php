@@ -26,8 +26,8 @@ use DateTime;
  * @property array $categoryIds
  * @property array $purchasableIds
  * @property array $userGroupIds
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @author Kurious Agency
+ * @since 1.0.0
  */
 class Gift extends Model
 {

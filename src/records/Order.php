@@ -1,8 +1,11 @@
 <?php
 /**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
+ * GWP plugin for Craft CMS 3.x
+ *
+ * Commerce GWP plugin for Craft CMS
+ *
+ * @link      https://kurious.agency
+ * @copyright Copyright (c) 2019 Kurious Agency
  */
 
 namespace craft\commerce\records;
@@ -19,8 +22,8 @@ use yii\db\ActiveQueryInterface;
  * @property int $giftId
  * @property int $id
  * @property int $uses
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @author Kurious Agency
+ * @since 1.0.0
  */
 class Order extends ActiveRecord
 {
