@@ -2,7 +2,7 @@
     "name": "kuriousagency/commerce-gwp",
     "description": "Commerce Gift with Purchase plugin for Craft CMS",
     "type": "craft-plugin",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "keywords": [
         "craft",
         "cms",
@@ -36,7 +36,7 @@
         "hasCpSection": true,
         "changelogUrl": "https://raw.githubusercontent.com/KuriousAgency/commerce-gwp/master/CHANGELOG.md",
         "components": {
-            "service": "kuriousagency\\gwp\\services\\GwpService"
+            "service": "kuriousagency\\commerce\\gwp\\services\\GwpService"
         },
         "class": "kuriousagency\\commerce\\gwp\\gwp"
     }
