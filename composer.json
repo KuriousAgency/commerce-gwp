@@ -38,6 +38,6 @@
         "components": {
             "service": "kuriousagency\\commerce\\gwp\\services\\GwpService"
         },
-        "class": "kuriousagency\\commerce\\gwp\\gwp"
+        "class": "kuriousagency\\commerce\\gwp\\Gwp"
     }
 }
