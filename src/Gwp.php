@@ -151,16 +151,19 @@ class Gwp extends Plugin
 					$freeGifts = array_count_values($freeGifts);
 
 					if($gifts && $freeGifts) {
-
 						foreach($freeGifts as $giftId=>$qty) {
-							$options = [];
-							$options['promotionalItem'] = true;
-							if(in_array($giftId,$customerChoiceGifts)) {
-								$options['gwpCustomerChoice'] = true;
-							}
-							$lineItem = Commerce::getInstance()->getLineItems()->resolveLineItem($order->id,$giftId,$options);
-							$lineItem->qty = $qty;
-							$order->addLineItem($lineItem);
+                            if($purchasable = Commerce::getInstance()->getPurchasables()->getPurchasableById($giftId)) {
+                                if($purchasable->getIsAvailable()) {
+                                    $options = [];
+                                    $options['promotionalItem'] = true;
+                                    if(in_array($purchasable->id,$customerChoiceGifts)) {
+                                        $options['gwpCustomerChoice'] = true;
+                                    }
+                                    $lineItem = Commerce::getInstance()->getLineItems()->resolveLineItem($order->id,$purchasable->id,$options);
+                                    $lineItem->qty = $qty;
+                                    $order->addLineItem($lineItem);
+                                }
+                            }
 						}
 					}
 
